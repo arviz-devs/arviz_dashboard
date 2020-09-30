@@ -1,9 +1,8 @@
 """Streaming functionality."""
-import streamz
-import panel as pn
-from bokeh.plotting import figure, ColumnDataSource
 import pandas as pd
-
+import panel as pn
+import streamz
+from bokeh.plotting import ColumnDataSource, figure
 
 __all__ = ["get_streaming_components"]
 
