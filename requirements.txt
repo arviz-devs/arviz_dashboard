@@ -1,4 +1,0 @@
-arviz
-bokeh
-panel
-streamz
