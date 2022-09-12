@@ -1,5 +1,5 @@
 ## Contributing to ArviZ Dashboard
-The references in this document can be used to build a dashboard template using ArviZ and Panel. For a clearer understanding of how you can contribute to the ArviZ Dashboard Project, you can also consult the contributing guide[contributing guide](https://arviz-devs.github.io/arviz/contributing/index.html). 
+The references in this document can be used to build a dashboard template using ArviZ and Panel. For a clearer understanding of how you can contribute to the ArviZ Dashboard Project, you can also consult the contributing guide [contributing guide](https://arviz-devs.github.io/arviz/contributing/index.html). 
 
 ### Dashboard Fundamentals
 Currently, we implemented dashboards using Panel + Matplotlib / Bokeh. Before designing the dashboard, you probably need to get familiar with
