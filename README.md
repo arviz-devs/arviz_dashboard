@@ -7,10 +7,11 @@ This project brings dashboards to ArviZ enabling users to compare different visu
 We currently provide one dashboard for model comparison, in terms of the ELPD_loo values, which you can find in the `examples/elpd_dashboard.ipynb`. In the near future, more dashboards will be added to this repo
 
 ## Installation
-
-**this package is still under construction, but we do provide ways for you to explore the embedded template**
-
-You can explore the elpd dashboard under `examples/elpd_dashboard.ipynb`
+```
+git clone the REPO
+cd arviz_dashboard
+pip install -e .
+```
 
 ## Usage
 
