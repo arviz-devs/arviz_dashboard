@@ -8,6 +8,7 @@ bokeh.io.reset_output()
 bokeh.io.output_notebook()
 import matplotlib.pyplot as plt
 import numpy as np
+import arviz as az
 
 pn.extension()
 
