@@ -1,4 +1,3 @@
 arviz
-bokeh
+jupyterlab
 panel
-streamz
