@@ -1,45 +1,65 @@
 from __future__ import annotations
 
 import arviz as az
-import numpy as np
-import numpy.typing as npt
 import panel as pn
 import param
-import xarray
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models.tools import HoverTool
 from bokeh.palettes import Colorblind8
-from bokeh.plotting import Figure, figure
-
+from bokeh.plotting import figure
 
 pn.extension()
 
 
-def style_figure(fig: Figure, title: str) -> None:
+def style_figure(fig: figure, title: str) -> None:
+    """Style the given Bokeh figure.
+
+    Parameters
+    ----------
+    fig : figure
+        Bokeh figure object to style.
+    title : str
+        Title for the figure.
+
+    Returns
+    -------
+    None
+        Directly applies the style to the figure.
+    """
     fig.outline_line_color = "black"
     fig.yaxis.visible = False
     fig.title = title
 
 
-def select_chain_data(
-    all_chains: list[int],
-    selected_chains: list[int],
-    rv_data_xarray: xarray.DataArray,
-    aggregation: str,
-) -> npt.ArrayLike:
-    # Select only the chains the user has selected.
-    chain_mask = [True if chain in selected_chains else False for chain in all_chains]
-    rv_chain_data = rv_data_xarray[chain_mask, ...].data
-
-    # Handle concatenating chains together.
-    if aggregation == "aggregate":
-        rv_chain_data = np.concatenate(rv_chain_data, axis=0)
-        rv_chain_data = rv_chain_data.reshape(1, *rv_chain_data.shape)
-
-    return rv_chain_data
-
-
 def create_selectors(idata: az.InferenceData) -> dict[str, param.Parameter]:
+    """Create `param.Selector` objects for the dashboard.
+
+    We do not know a priori the random variables used for any given model. We also do
+    not know any hierarchy for the given model represented by the ArviZ `InferenceData`
+    object. This method iterates through the `idata` object to find all the random
+    variables used in the model, and any hierarchy if it exists.
+
+    Parameters
+    ----------
+    idata : az.InferenceData
+        An ArviZ `InferenceData` object that contains the posterior for the model.
+
+    Returns
+    -------
+    output : dict[str, param.Parameter]
+        A dictionary of random variable names as keys and `param` objects as values.
+
+    Raises
+    ------
+    AttributeError
+        If no "posterior" is found in the ArviZ `InferenceData` object, then a model has
+        more than likely not been run.
+    """
+    if not hasattr(idata, "posterior"):
+        raise AttributeError(
+            "The given ArviZ InferenceData object does not contain a posterior. "
+            "Have you run a model?"
+        )
     output = {}
     output["rv_selector"] = param.Selector(
         label="Random variable",
@@ -52,7 +72,8 @@ def create_selectors(idata: az.InferenceData) -> dict[str, param.Parameter]:
         objects = idata["posterior"].coords[dimension].data.tolist()
         if dimension == "chain":
             output[f"{dimension}_selector"] = param.ListSelector(
-                objects=objects, default=[0]
+                objects=objects,
+                default=[0],
             )
         else:
             output[f"{dimension}_selector"] = param.Selector(objects=objects)
@@ -60,7 +81,21 @@ def create_selectors(idata: az.InferenceData) -> dict[str, param.Parameter]:
 
 
 def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
+    """Dashboard for the one-dimensional marginals of random variable posteriors.
 
+    Parameters
+    ----------
+    idata : az.InferenceData
+        An ArviZ `InferenceData` object that contains the posterior for the model.
+
+    Returns
+    -------
+    None
+        If in a Jupyter environment, then the dashboard will be directly displayed.
+    """
+    # NOTE: See the docstring for `create_selectors` for a full description as to why we
+    #       are creating objects this way. Briefly, we do not know the random variables
+    #       used in a model, and this is a way to create them within the class below.
     DashboardWidgets = type(
         "DashboardWidgets",
         (param.Parameterized,),
@@ -68,6 +103,13 @@ def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
     )
 
     class PosteriorMarginal1dDashboard(DashboardWidgets):
+        """Parameterized class to that computes and reacts to user interactions.
+
+        Parameters
+        ----------
+        idata : az.InferenceData
+            An ArviZ `InferenceData` object that contains the posterior for the model.
+        """
 
         chain_aggregation = param.Selector(objects=["separate", "aggregate"])
 
@@ -78,10 +120,7 @@ def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
         ) -> None:
             # Input data.
             self.posterior = idata["posterior"]
-            # rv_names = list(self.posterior.data_vars.keys())
             self.chains = self.posterior.coords["chain"].data.tolist()
-            # self.num_chains = self.posterior.dims["chain"]
-            # self.num_draws = self.posterior.dims["draw"]
             self.dimension_names = [
                 dimension_name
                 for dimension_name in self.posterior.coords.dims
@@ -101,6 +140,14 @@ def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
         def compute(
             self: PosteriorMarginal1dDashboard,
         ) -> dict[str, dict[str, list[float]]]:
+            """Compute the 1D kernel density estimate for the selected random variable.
+
+            Returns
+            -------
+            output : dict[str, dict[str, list[float]]]
+                A dictionary consisting of the random variable name as the key, and the
+                KDE estimate as the value.
+            """
             output = {}
             rv_data_xarray = self.posterior[self.rv_selector]
             rv_dimensions = list(rv_data_xarray.coords)
@@ -121,7 +168,8 @@ def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
                 for i, chain in enumerate(self.chain_selector):
                     chain_data = data[i]
                     support, density, bandwidth = az.stats.kde(
-                        chain_data, bw_return=True
+                        chain_data,
+                        bw_return=True,
                     )
                     density /= density.max()
                     output[f"{chain}"] = {
@@ -140,7 +188,14 @@ def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
                 }
             return output
 
-        def plot(self: PosteriorMarginal1dDashboard, *args) -> Figure:
+        def plot(self: PosteriorMarginal1dDashboard, *args) -> figure:  # dead: disable
+            """Plot the dashboard.
+
+            Returns
+            -------
+            fig : figure
+                The Bokeh figure containing 1D KDEs.
+            """
             fig = figure()
             style_figure(fig, self.rv_selector)
             data = self.compute()
@@ -170,6 +225,13 @@ def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
             return fig
 
         def show(self: PosteriorMarginal1dDashboard) -> None:
+            """Shows the dashboard in a Jupyter environment.
+
+            Returns
+            -------
+            None
+                Renders the dashboard directly in the notebook.
+            """
             return pn.Row(self.param, self.plot)
 
     dashboard = PosteriorMarginal1dDashboard(idata)
