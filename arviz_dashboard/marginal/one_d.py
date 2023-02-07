@@ -80,7 +80,7 @@ def create_selectors(idata: az.InferenceData) -> dict[str, param.Parameter]:
     return output
 
 
-def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
+def posterior_marginal1d(idata: az.InferenceData) -> None:
     """Dashboard for the one-dimensional marginals of random variable posteriors.
 
     Parameters
@@ -96,13 +96,13 @@ def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
     # NOTE: See the docstring for `create_selectors` for a full description as to why we
     #       are creating objects this way. Briefly, we do not know the random variables
     #       used in a model, and this is a way to create them within the class below.
-    DashboardWidgets = type(
+    Widgets = type(
         "DashboardWidgets",
         (param.Parameterized,),
         create_selectors(idata),
     )
 
-    class PosteriorMarginal1dDashboard(DashboardWidgets):
+    class PosteriorMarginal1d(Widgets):
         """Parameterized class to that computes and reacts to user interactions.
 
         Parameters
@@ -114,7 +114,7 @@ def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
         chain_aggregation = param.Selector(objects=["separate", "aggregate"])
 
         def __init__(
-            self: PosteriorMarginal1dDashboard,
+            self: PosteriorMarginal1d,
             idata: az.InferenceData,
             **params,
         ) -> None:
@@ -138,7 +138,7 @@ def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
             super().__init__(**params)
 
         def compute(
-            self: PosteriorMarginal1dDashboard,
+            self: PosteriorMarginal1d,
         ) -> dict[str, dict[str, list[float]]]:
             """Compute the 1D kernel density estimate for the selected random variable.
 
@@ -188,7 +188,7 @@ def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
                 }
             return output
 
-        def plot(self: PosteriorMarginal1dDashboard, *args) -> figure:  # dead: disable
+        def plot(self: PosteriorMarginal1d, *args) -> figure:  # dead: disable
             """Plot the dashboard.
 
             Returns
@@ -224,7 +224,7 @@ def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
                 fig.add_tools(locals()[f"tips{i}"])
             return fig
 
-        def show(self: PosteriorMarginal1dDashboard) -> None:
+        def show(self: PosteriorMarginal1d) -> None:
             """Shows the dashboard in a Jupyter environment.
 
             Returns
@@ -234,5 +234,5 @@ def posterior_marginal1d_dashboard(idata: az.InferenceData) -> None:
             """
             return pn.Row(self.param, self.plot)
 
-    dashboard = PosteriorMarginal1dDashboard(idata)
+    dashboard = PosteriorMarginal1d(idata)
     return dashboard.show()
