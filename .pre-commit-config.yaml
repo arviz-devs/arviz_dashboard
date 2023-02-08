@@ -1,0 +1,238 @@
+repos:
+  # Prevent commits to the main branch.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: no-commit-to-branch
+        name: not committing to branch `main`
+        entry: no-commit-to-branch
+        args:
+          - --branch=main
+        language: python
+        pass_filenames: false
+        always_run: true
+  # Remove all unused imports for Python files.
+  - repo: https://github.com/hadialqattan/pycln
+    rev: v2.1.3
+    hooks:
+      - id: pycln
+        name: remove all unused imports
+        description: A formatter for finding and removing unused import statements.
+        entry: pycln
+        args:
+          - --all
+        language: python
+        language_version: python3
+        types:
+          - python
+  # Make sure all imports are absolute in Python files.
+  - repo: https://github.com/MarcoGorelli/absolufy-imports
+    rev: v0.3.1
+    hooks:
+      - id: absolufy-imports
+        name: make all imports absolute
+        description: Automatically convert relative imports to absolute
+        entry: absolufy-imports
+        language: python
+        types:
+          - python
+        minimum_pre_commit_version: 0.15.0
+  # Remove any commented out Python code.
+  - repo: https://github.com/asottile/dead
+    rev: v1.5.0
+    hooks:
+      - id: dead
+        name: detect dead code
+        description: dead simple python dead code detection
+        entry: dead
+        pass_filenames: false
+        language: python
+        language_version: python3
+        types:
+          - python
+  # Sort the imports using `isort` in Python files.
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: sort imports using isort
+        description: sort imports for all python files
+        entry: isort
+        args:
+          - --profile=black
+          - --verbose
+          - --overwrite-in-place
+        language: python
+        types_or:
+          - cython
+          - pyi
+          - python
+  # Format Python files using `black`.
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
+      - id: black
+        name: format python modules and stub files
+        description: black - the uncompromising Python code formatter
+        entry: black
+        args:
+          - --verbose
+        language: python
+        require_serial: true
+        minimum_pre_commit_version: 2.9.2
+        types_or:
+          - python
+  # Lint Python files using `ruff`.
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.242
+    hooks:
+      - id: ruff
+        name: lint python modules
+        description: Run 'ruff' for extremely fast Python linting
+        entry: ruff
+        args:
+          - --verbose
+          - --diff
+          - --respect-gitignore
+          - --line-length=88
+        language: python
+        types_or:
+          - python
+          - pyi
+        require_serial: true
+        minimum_pre_commit_version: 2.9.2
+  # Remove commented out Python code using `dead`.
+  - repo: https://github.com/asottile/dead
+    rev: v1.5.0
+    hooks:
+      - id: dead
+        name: remove commented out code
+        description: python dead code detection
+        entry: dead
+        pass_filenames: false
+        language: python
+        language_version: python3
+        types:
+          - python
+  # Remove unnecessary `# noqa` comments
+  - repo: https://github.com/asottile/yesqa
+    rev: v1.4.0
+    hooks:
+      - id: yesqa
+        name: remove unnecessary `# noqa` comments
+        description: automatically remove unnecessary `# noqa` comments
+        entry: yesqa
+        language: python
+        types:
+          - python
+  # Upgrade Python syntax.
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.3.1
+    hooks:
+      - id: pyupgrade
+        name: upgrade syntax
+        description: Automatically upgrade syntax for newer versions.
+        entry: pyupgrade
+        language: python
+        types:
+          - python
+        minimum_pre_commit_version: 0.15.0
+  # Remove Jupyter notebook metadata.
+  - repo: https://github.com/datarootsio/databooks
+    rev: 1.3.7
+    hooks:
+      - id: databooks-meta
+        name: remove Jupyter notebook metadata
+        description: remove Jupyter notebook metadata
+        entry: databooks meta --yes
+        language: python
+        minimum_pre_commit_version: 2.9.2
+        types:
+          - jupyter
+  # Run `isort` on Jupyter notebooks.
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.6.1
+    hooks:
+      - id: nbqa-isort
+        name: run isort on notebooks
+        description: Run 'isort' on a Jupyter Notebook
+        entry: nbqa isort
+        language: python
+        require_serial: true
+        types_or:
+          - jupyter
+        additional_dependencies:
+          - isort
+  # Run `black` on Jupyter notebooks.
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
+      - id: black-jupyter
+        name: run black on notebooks
+        description: format code with black
+        entry: black
+        language: python
+        minimum_pre_commit_version: 2.9.2
+        require_serial: true
+        types_or:
+          - jupyter
+  # Run `pyupgrade` on Jupyter notebooks.
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.6.1
+    hooks:
+      - id: nbqa-pyupgrade
+        name: run `pyupgrade` on notebooks
+        description: Run `pyupgrade` on a Jupyter Notebook
+        entry: nbqa pyupgrade
+        language: python
+        require_serial: true
+        types_or:
+          - jupyter
+        additional_dependencies:
+          - pyupgrade
+  # Check the following file types can be parsed: JSON YAML TOML.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-json
+        name: check json files are parseable
+        description: checks json files for parseable syntax.
+        entry: check-json
+        language: python
+        types:
+          - json
+      - id: check-yaml
+        name: check yaml files are parseable
+        description: checks yaml files for parseable syntax.
+        entry: check-yaml
+        exclude: |
+          (?x)^(
+            conda.recipe/meta.yaml
+          )$
+        language: python
+        types:
+          - yaml
+      - id: check-toml
+        name: check toml files are parseable
+        description: checks toml files for parseable syntax.
+        entry: check-toml
+        language: python
+        types:
+          - toml
+  # Standardize markdown files.
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.16
+    hooks:
+      - id: mdformat
+        name: format markdown using mdformat
+        description: CommonMark compliant Markdown formatter
+        entry: mdformat
+        args:
+          - --wrap=88
+        language: python
+        types:
+          - markdown
+        minimum_pre_commit_version: 1.0.0
+        additional_dependencies:
+          - mdformat-black
+          - mdformat-myst
