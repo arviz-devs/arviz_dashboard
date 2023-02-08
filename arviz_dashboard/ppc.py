@@ -2,10 +2,6 @@ import arviz as az
 import bokeh.io
 import matplotlib.pyplot as plt
 import panel as pn
-from bokeh.palettes import Category10
-from bokeh.plotting import figure
-import time
-
 bokeh.io.reset_output()
 bokeh.io.output_notebook()
 
