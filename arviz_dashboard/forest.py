@@ -11,24 +11,25 @@ pn.extension()
 
 
 class ModelVar(param.Parameterized):
-    
     model = param.Selector("")
     data_variable = param.Selector("")
     coor_variable = param.Selector("")
-    
+
     def __init__(self, idatas_cmp, **params) -> None:
-        
         self.idatas_cmp = idatas_cmp
         self.default_model = list(self.idatas_cmp.keys())[0]
         self.param["model"].objects = list(self.idatas_cmp.keys())
         self.param["model"].default = self.default_model
-        self.param["data_variable"].objects  = list(self.idatas_cmp[self.default_model].posterior.data_vars.variables)
+        self.param["data_variable"].objects = list(
+            self.idatas_cmp[self.default_model].posterior.data_vars.variables
+        )
         super().__init__(**params)
-    
 
     @param.depends("model", watch=True)
     def _update_data_variables(self):
-        data_variables = list(self.idatas_cmp[self.model].posterior.data_vars.variables)
+        data_variables = list(
+            self.idatas_cmp[self.model].posterior.data_vars.variables
+        )
         self.param["data_variable"].objects = data_variables
         if self.data_variable not in data_variables:
             self.data_variable = data_variables[0]
@@ -64,7 +65,12 @@ class ForestDashboard(ModelVar):
             value=["mA"],
         )
         thre_slider = pn.widgets.FloatSlider(
-            name="HDI Probability", start=0, end=1, step=0.05, value=0.7, width=200
+            name="HDI Probability",
+            start=0,
+            end=1,
+            step=0.05,
+            value=0.7,
+            width=200,
         )
         truncate_checkbox = pn.widgets.Checkbox(name="Ridgeplot Truncate")
         ridge_quant = pn.widgets.RangeSlider(
@@ -76,7 +82,12 @@ class ForestDashboard(ModelVar):
             width=200,
         )
         op_slider = pn.widgets.FloatSlider(
-            name="Ridgeplot Overlap", start=0, end=1, step=0.05, value=0.7, width=200
+            name="Ridgeplot Overlap",
+            start=0,
+            end=1,
+            step=0.05,
+            value=0.7,
+            width=200,
         )
 
         # construct widget
@@ -165,7 +176,11 @@ class ForestDashboard(ModelVar):
             pn.Column(
                 pn.Row(multi_select),
                 thre_slider,
-                pn.Row(self.param.model,self.param.data_variable,self.param.coor_variable ),
+                pn.Row(
+                    self.param.model,
+                    self.param.data_variable,
+                    self.param.coor_variable,
+                ),
                 # pn.Row(self.param),
                 pn.Tabs(
                     ("Forest_Plot", plot_result_1),
