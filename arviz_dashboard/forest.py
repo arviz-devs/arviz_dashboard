@@ -90,23 +90,42 @@ class ForestDashboard(ModelVar):
             width=200,
         )
 
+        rope_slider = pn.widgets.RangeSlider(
+            name="Rope Range",
+            start=-10,
+            end=10,
+            value=(2, 5),
+            step=1,
+            width=200,
+        )
+
         # construct widget
         @pn.depends(
             multi_select.param.value,
             thre_slider.param.value,
+            rope_slider.param.value,
+            self.param.data_variable,
+            self.param.coor_variable,
         )
         def get_forest_plot(
-            multi_select,
-            thre_slider,
+            multi_select, thre_slider, rope_slider, 
+            data_variable, coor_variable
         ):
             # generate graph
             data = []
             for model_ in multi_select:
                 data.append(self.idatas_cmp[model_])
-
+            # add rope
+            rope = {}
+            school = {}
+            school["school"] = coor_variable
+            school["rope"] = rope_slider
+            rope[data_variable] = [school]
+            # print(rope)
             forest_plt = az.plot_forest(
                 data,
                 model_names=multi_select,
+                rope=rope,
                 kind="forestplot",
                 hdi_prob=thre_slider,
                 backend="bokeh",
@@ -164,23 +183,28 @@ class ForestDashboard(ModelVar):
             )
             return ridge_plt[0][0]
 
-        plot_result_1 = pn.Row(get_forest_plot)
-        plot_result_2 = pn.Column(
-            pn.Row(truncate_checkbox),
-            pn.Row(ridge_quant, op_slider),
-            get_ridge_plot,
-        )
-
-        # show up
-        display(
-            pn.Column(
-                pn.Row(multi_select),
-                thre_slider,
+        plot_result_1 = pn.Column(
+            pn.WidgetBox(
+                "add rope",
                 pn.Row(
                     self.param.model,
                     self.param.data_variable,
                     self.param.coor_variable,
                 ),
+                rope_slider,
+            ),
+            get_forest_plot,
+        )
+        plot_result_2 = pn.Column(
+            pn.Row(truncate_checkbox),
+            pn.Row(ridge_quant, op_slider),
+            get_ridge_plot,
+        )
+        # show up
+        display(
+            pn.Column(
+                pn.Row(multi_select),
+                thre_slider,
                 # pn.Row(self.param),
                 pn.Tabs(
                     ("Forest_Plot", plot_result_1),
