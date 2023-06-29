@@ -1,3 +1,0 @@
-arviz
-jupyterlab
-panel < 1.0.0
