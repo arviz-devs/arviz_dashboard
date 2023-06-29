@@ -1,0 +1,86 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[project]
+authors = [{name = "arviz-devs"}]
+classifiers = [
+  "Development Status :: 1 - Planning",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Education",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Visualization",
+  "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = ["arviz>0.15", "jupyterlab>4.0", "panel<1.0"]
+description = "Bayesian Dashboards built on top of Panel"
+dynamic = ["version"]
+keywords = []
+license = {file = "LICENSE.txt"}
+maintainers = []
+name = "arviz_dashboard"
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">3.9"
+
+[project.optional-dependencies]
+dev = [
+  # Automation
+  "pre-commit",
+
+  # Python code formatting
+  "absolufy-imports", # use only absolute imports, no `from .module import method`
+  "black", # code formatting
+  "isort", # sort imports
+
+  # Python code linting
+  "flake8",
+  "flake8-builtins", # ensure python builtins are not used as variables
+  "flake8-debugger", # remove ipdb or pdb statements
+  "flake8-eradicate", # remove unused code
+  "flake8-docstrings", # ensure docstrings exist
+  "Flake8-pyproject", # allow configs for flake8 in the pyproject.toml file
+  "pycln", # remove unused import statements
+  "ruff", # lint python code
+
+  # Python code testing
+  "pytest",
+  "pytest-cov",
+
+  # Python type checking
+  "pyre-check",
+
+  # Python docstring style checking
+  "pydocstyle",
+
+  # Markdown code formatting
+  "mdformat",
+  "mdformat-myst",
+]
+examples = ["pymc"]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/arviz-devs/arviz_dashboard/issues"
+"Homepage" = "https://github.com/arviz-devs/arviz_dashboard"
+"Source Code" = "https://github.com/arviz-devs/arviz_dashboard"
+
+[tool.hatch.version]
+path = "src/arviz_dashboard/__init__.py"
+
+[tool.flake8]
+ignore = ["D100"]
+max-line-length = 100
+per-file-ignores = ["__init__.py:D104"]
+
+[tool.isort]
+force_grid_wrap = 0
+include_trailing_comma = true
+line_length = 100
+multi_line_output = 3
+profile = "black"
+use_parentheses = true
