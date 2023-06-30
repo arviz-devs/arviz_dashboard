@@ -29,53 +29,17 @@ readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">3.9"
 
 [project.optional-dependencies]
-dev = [
-  # Automation
-  "pre-commit",
-
-  # Python code formatting
-  "absolufy-imports", # use only absolute imports, no `from .module import method`
-  "black", # code formatting
-  "isort", # sort imports
-
-  # Python code linting
-  "flake8",
-  "flake8-builtins", # ensure python builtins are not used as variables
-  "flake8-debugger", # remove ipdb or pdb statements
-  "flake8-eradicate", # remove unused code
-  "flake8-docstrings", # ensure docstrings exist
-  "Flake8-pyproject", # allow configs for flake8 in the pyproject.toml file
-  "pycln", # remove unused import statements
-  "ruff", # lint python code
-
-  # Python code testing
-  "pytest",
-  "pytest-cov",
-
-  # Python type checking
-  "pyre-check",
-
-  # Python docstring style checking
-  "pydocstyle",
-
-  # Markdown code formatting
-  "mdformat",
-  "mdformat-myst",
-]
+dev = ["pre-commit"]
 examples = ["pymc"]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/arviz-devs/arviz_dashboard/issues"
+"Documentation" = "https://github.com/arviz-devs/arviz_dashboard"
 "Homepage" = "https://github.com/arviz-devs/arviz_dashboard"
-"Source Code" = "https://github.com/arviz-devs/arviz_dashboard"
+"Repository" = "https://github.com/arviz-devs/arviz_dashboard"
 
 [tool.hatch.version]
 path = "src/arviz_dashboard/__init__.py"
-
-[tool.flake8]
-ignore = ["D100"]
-max-line-length = 100
-per-file-ignores = ["__init__.py:D104"]
 
 [tool.isort]
 force_grid_wrap = 0
@@ -84,3 +48,39 @@ line_length = 100
 multi_line_output = 3
 profile = "black"
 use_parentheses = true
+
+[tool.black]
+line-length = 100
+
+[tool.ruff]
+line-length = 100
+per-file-ignores = {"__init__.py" = ["F401"]}
+
+[tool.pycln]
+all = true
+disable_all_dunder_policy = true
+expand_stars = true
+extend_exclude = "__init__.py"
+path = "src/arviz_dashboard"
+verbose = true
+
+[tool.yamlfix]
+explicit_start = false
+line_length = 100
+section_whitelines = 1
+sequence_style = "block_style"
+whitelines = 1
+
+[tool.flake8]
+ignore = [
+  "ANN002", # missing type annotations for *args
+  "ANN003", # missing type annotations for *kwargs
+  "D100", # missing docstring in public module
+  "D104", # missing docstring in public package
+  "D107", # missing docstring in __init__ methods of classes
+]
+max-line-length = 100
+per-file-ignores = ["__init__.py:F401"]
+
+[tool.pydoclint]
+style = "numpy"
