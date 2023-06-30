@@ -1,0 +1,124 @@
+repos:
+  # Prevent commits to the main branch.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: no-commit-to-branch
+        name: ensure we are not committing to branch `main`
+        args:
+          - --branch=main
+
+  # Make sure all imports are absolute in Python files.
+  - repo: https://github.com/MarcoGorelli/absolufy-imports
+    rev: v0.3.1
+    hooks:
+      - id: absolufy-imports
+        name: format Python imports using absolufy-imports
+
+  # Sort Python imports using `isort`.
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: sort Python imports using isort
+        args:
+          - --force-grid-wrap=0
+          - --line-length=100
+          - --multi-line=3
+          - --overwrite-in-place
+          - --profile=black
+          - --trailing-comma
+          - --use-parentheses
+
+  # Remove unused `# noqa` comments
+  - repo: https://github.com/asottile/yesqa
+    rev: v1.5.0
+    hooks:
+      - id: yesqa
+
+  # Remove all unused imports for Python files.
+  - repo: https://github.com/hadialqattan/pycln
+    rev: v2.1.5
+    hooks:
+      - id: pycln
+        name: remove unused Python imports using pycln
+
+  # Python formatting
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+        name: format Python code using black
+        args:
+          - --line-length=100
+          - --verbose
+
+  # Lint Python files using `ruff`.
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.275
+    hooks:
+      - id: ruff
+        name: lint Python using ruff
+        args:
+          - --diff
+          - --line-length=100
+          - --respect-gitignore
+          - --verbose
+
+  # Markdown formatting
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.16
+    hooks:
+      - id: mdformat
+        name: format Markdown using mdformat
+        args:
+          - --wrap=100
+        additional_dependencies:
+          - mdformat-myst==0.1.5
+          - mdformat_tables==0.4.1
+          - mdformat-frontmatter==2.0.1
+
+  # YAML formatting
+  - repo: https://github.com/lyz-code/yamlfix
+    rev: 1.11.0
+    hooks:
+      - id: yamlfix
+        name: format YAML using yamlfix
+        args:
+          - ./
+
+  # TOML formatting
+  - repo: https://github.com/ComPWA/mirrors-taplo
+    rev: v0.8.0
+    hooks:
+      - id: taplo
+        name: format TOML using taplo
+        args:
+          - format
+          - --config=.taplo.toml
+
+  # Check docstrings are formatted correctly
+  - repo: https://github.com/jsh9/pydoclint
+    rev: 0.0.13
+    hooks:
+      - id: pydoclint
+        args:
+          - --config=pyproject.toml
+
+  # Run `flake8` on Python files.
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        name: inspect Python code using flake8
+        args:
+          - --verbose
+        additional_dependencies:
+          - flake8-annotations==3.0.1
+          - flake8-builtins==2.1.0
+          - flake8-debugger==4.1.2
+          - flake8-docstrings==1.7.0
+          - flake8-eradicate==1.5.0
+          - flake8-markdown==0.4.0
+          - flake8-print==5.0.0
+          - flake8-pyproject==1.2.3

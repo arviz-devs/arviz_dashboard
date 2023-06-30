@@ -31,6 +31,24 @@ cd arviz_dashboard
 pip install --editable .[dev,examples]
 ```
 
+Once the package has been installed, we need to install the `pre-commit` hooks used for maintaining
+code hygiene. Run the following commands to set up the required `pre-commit` hooks for development.
+
+```bash
+pre-commit install
+```
+
+When you commit your changes to your branch, `pre-commit` will install the tools defined in the
+config file, and check give feedback about required changes in order for the push to pass linting
+and formatting tests.
+
+If you add a new hook to the `.pre-commit-config.yaml` file, run the following command in order to
+check if you hook is working against all the files.
+
+```bash
+pre-commit run --all-files
+```
+
 ### Contributor installation test
 
 TBD
