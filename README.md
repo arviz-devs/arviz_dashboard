@@ -43,7 +43,7 @@ config file, and check give feedback about required changes in order for the pus
 and formatting tests.
 
 If you add a new hook to the `.pre-commit-config.yaml` file, run the following command in order to
-check if you hook is working against all the files.
+check if your hook is working against all the files.
 
 ```bash
 pre-commit run --all-files
@@ -60,8 +60,8 @@ pytest
 ## Usage
 
 Dashboard usually includes multiple visualizations with different purposes. If you have any problems
-with certain visualization, you can find more explanations for the ArviZ visualizations in
-[ArvZ](https://arviz-devs.github.io/arviz/examples/index.html) and
+with certain visualizations, you can find more explanations for the ArviZ visualizations in
+[ArviZ](https://arviz-devs.github.io/arviz/examples/index.html) and
 [Bayesian Modeling and Computation in Python](https://bayesiancomputationbook.com/welcome.html)
 
 ## Sponsors
