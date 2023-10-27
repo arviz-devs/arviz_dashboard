@@ -124,8 +124,8 @@ def dashboard_elpd(idatas_cmp):
 
             p = figure(
                 x_range=standard,
-                plot_height=300,
-                plot_width=200,
+                height=300,
+                width=200,
                 title="Summary of Observations",
                 tooltips=tooltips,
                 toolbar_location=None,
