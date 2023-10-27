@@ -18,7 +18,7 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Visualization",
   "Topic :: Scientific/Engineering :: Mathematics",
 ]
-dependencies = ["arviz>0.15", "jupyterlab>4.0", "panel<1.0"]
+dependencies = ["arviz", "jupyterlab", "panel"]
 description = "Bayesian Dashboards built on top of Panel"
 dynamic = ["version"]
 keywords = []
