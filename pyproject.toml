@@ -1,25 +1,30 @@
 [build-system]
-build-backend = "hatchling.build"
-requires = ["hatchling"]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools", "setuptools-scm"]
 
 [project]
 authors = [{name = "arviz-devs"}]
 classifiers = [
-  "Development Status :: 1 - Planning",
-  "Intended Audience :: Science/Research",
-  "Intended Audience :: Education",
-  "License :: OSI Approved :: Apache Software License",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Topic :: Scientific/Engineering",
-  "Topic :: Scientific/Engineering :: Visualization",
-  "Topic :: Scientific/Engineering :: Mathematics",
+    "Development Status :: 1 - Planning",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Mathematics",
 ]
-dependencies = ["arviz>0.15", "jupyterlab>4.0", "panel<1.0"]
-description = "Bayesian Dashboards built on top of Panel"
+dependencies = [
+    "arviz",
+    "bokeh",
+    "jupyterlab",
+    "panel",
+]
+description = "Dashboards for Bayesian modeling"
 dynamic = ["version"]
 keywords = []
 license = {file = "LICENSE"}
@@ -29,7 +34,12 @@ readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">3.9"
 
 [project.optional-dependencies]
-dev = ["pre-commit"]
+dev = [
+    "ipdb",
+    "pre-commit",
+    "pyre-check",
+]
+test = ["pytest", "pytest-cov"]
 examples = ["pymc"]
 
 [project.urls]
@@ -38,49 +48,5 @@ examples = ["pymc"]
 "Homepage" = "https://github.com/arviz-devs/arviz_dashboard"
 "Repository" = "https://github.com/arviz-devs/arviz_dashboard"
 
-[tool.hatch.version]
-path = "src/arviz_dashboard/__init__.py"
-
-[tool.isort]
-force_grid_wrap = 0
-include_trailing_comma = true
-line_length = 100
-multi_line_output = 3
-profile = "black"
-use_parentheses = true
-
-[tool.black]
-line-length = 100
-
-[tool.ruff]
-line-length = 100
-per-file-ignores = {"__init__.py" = ["F401"]}
-
-[tool.pycln]
-all = true
-disable_all_dunder_policy = true
-expand_stars = true
-extend_exclude = "__init__.py"
-path = "src/arviz_dashboard"
-verbose = true
-
-[tool.yamlfix]
-explicit_start = false
-line_length = 100
-section_whitelines = 1
-sequence_style = "block_style"
-whitelines = 1
-
-[tool.flake8]
-ignore = [
-  "ANN002", # missing type annotations for *args
-  "ANN003", # missing type annotations for *kwargs
-  "D100", # missing docstring in public module
-  "D104", # missing docstring in public package
-  "D107", # missing docstring in __init__ methods of classes
-]
-max-line-length = 100
-per-file-ignores = ["__init__.py:F401"]
-
-[tool.pydoclint]
-style = "numpy"
+[tool.setuptools.dynamic]
+version = {attr = "arviz_dashboard.__version__"}

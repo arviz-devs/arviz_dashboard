@@ -11,6 +11,13 @@ same view and interact with them.
 
 ### Contributor installation
 
+Clone the repo locally and `cd` into it.
+
+```bash
+git clone the https://github.com/arviz-devs/arviz_dashboard
+cd arviz_dashboard
+```
+
 We will use `mamba` to create a virtual environment where we will install a development version of
 ArviZ Dashboard. The first step is to follow the instructions here
 [https://github.com/conda-forge/miniforge#mambaforge](https://github.com/conda-forge/miniforge#mambaforge)
@@ -18,16 +25,14 @@ to install the correct version of `mamba` for your operating system. **Note** th
 `conda` installed already, you can exchange the command `mamba` for `conda` with the same results.
 
 ```bash
-mamba create --name arviz-dashboard pip python
-mamba activate arviz-dashboard
+mamba env create --file environment.yaml
+mamba activate arviz-dashboard-dev
 ```
 
-Once the virtual environment has been created, and you have activated it with the above commands,
-you can install the development requirements for `arviz_dashboard` with the following commands.
+Once the virtual environment has been created and activated, you can install the development
+requirements for `arviz_dashboard` using `pip`.
 
 ```bash
-git clone the https://github.com/arviz-devs/arviz_dashboard
-cd arviz_dashboard
 pip install --editable .[dev,examples]
 ```
 
