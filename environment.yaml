@@ -1,0 +1,15 @@
+name: arviz-dashboard-dev
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python =3.11
+
+  # Package managers
+  - nodejs
+  - pip
+
+  # Local dependencies
+  - pynvim
+  - pyright
