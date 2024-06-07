@@ -9,7 +9,3 @@ dependencies:
   # Package managers
   - nodejs
   - pip
-
-  # Local dependencies
-  - pynvim
-  - pyright
