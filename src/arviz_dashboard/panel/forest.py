@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import arviz as az
 import bokeh.io
 import panel as pn
@@ -17,9 +18,7 @@ class ModelVar(param.Parameterized):
     coor_variable = param.Selector("")
     index_key = ""
 
-    def __init__(
-        self, idata_dict: dict[str, az.InferenceData], **params
-    ) -> None:
+    def __init__(self, idata_dict: dict[str, az.InferenceData], **params) -> None:
         self.idata_dict = idata_dict
         self.models = list(self.idata_dict.keys())
         self.default_model = self.models[0]
@@ -32,9 +31,7 @@ class ModelVar(param.Parameterized):
 
     @param.depends("model", watch=True)
     def _update_data_variables(self: ModelVar):
-        data_variables = list(
-            self.idata_dict[self.model].posterior.data_vars.variables
-        )
+        data_variables = list(self.idata_dict[self.model].posterior.data_vars.variables)
         self.param["data_variable"].objects = data_variables
         if self.data_variable not in data_variables:
             self.data_variable = data_variables[0] if data_variables else None
@@ -43,11 +40,13 @@ class ModelVar(param.Parameterized):
     def _update_coordinates(self: ModelVar):
         if (
             self.idata_dict[self.model]
-            .posterior.data_vars.variables[self.data_variable].ndim
+            .posterior.data_vars.variables[self.data_variable]
+            .ndim
             > 2
-        ):  
-            self.index_key = list(dict(self.idata_dict[self.model].posterior
-                                       .dims).keys())[2]
+        ):
+            self.index_key = list(
+                dict(self.idata_dict[self.model].posterior.dims).keys()
+            )[2]
             coor_variables = list(
                 self.idata_dict[self.model].posterior.indexes[self.index_key]
             )
@@ -77,8 +76,7 @@ class ForestDashboard(ModelVar):
             value=0.7,
             width=200,
         )
-        ridgeplot_truncate_checkbox = pn.widgets.Checkbox(
-            name="Ridgeplot Truncate")
+        ridgeplot_truncate_checkbox = pn.widgets.Checkbox(name="Ridgeplot Truncate")
         ridgeplot_quantiles = pn.widgets.RangeSlider(
             name="Ridgeplot Quantiles",
             start=0,
@@ -116,9 +114,9 @@ class ForestDashboard(ModelVar):
         def get_forest_plot(
             models_selection_widget: pn.widgets.MultiSelect,
             hdi_slider: pn.widgets.FloatSlider,
-            forestplot_rope_slider: pn.widgets.RangeSlider, 
-            data_variable: param.Selector, 
-            coor_variable: param.Selector
+            forestplot_rope_slider: pn.widgets.RangeSlider,
+            data_variable: param.Selector,
+            coor_variable: param.Selector,
         ):
             # generate graph
             data = []
@@ -144,7 +142,7 @@ class ForestDashboard(ModelVar):
                 combined=True,
                 colors="cycle",
             )
-            # forest_plt is a narray as well as forest_plt[0], 
+            # forest_plt is a narray as well as forest_plt[0],
             # thus we used forest_plt[0][0] to get the figure
             return forest_plt.base[0]
 

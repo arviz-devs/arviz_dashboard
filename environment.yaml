@@ -1,0 +1,11 @@
+name: arviz-dashboard-dev
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python >3.9,<3.12
+
+  # Package managers
+  - nodejs
+  - pip

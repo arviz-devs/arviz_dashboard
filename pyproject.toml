@@ -1,36 +1,67 @@
 [build-system]
-build-backend = "hatchling.build"
-requires = ["hatchling"]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools", "setuptools-scm"]
 
 [project]
 authors = [{name = "arviz-devs"}]
 classifiers = [
   "Development Status :: 1 - Planning",
-  "Intended Audience :: Science/Research",
   "Intended Audience :: Education",
+  "Intended Audience :: Science/Research",
   "License :: OSI Approved :: Apache Software License",
-  "Programming Language :: Python",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Topic :: Scientific/Engineering",
-  "Topic :: Scientific/Engineering :: Visualization",
   "Topic :: Scientific/Engineering :: Mathematics",
+  "Topic :: Scientific/Engineering :: Visualization",
+  "Topic :: Scientific/Engineering",
 ]
-dependencies = ["arviz>0.15", "jupyterlab>4.0", "panel<1.0"]
-description = "Bayesian Dashboards built on top of Panel"
+dependencies = [
+    "anywidget == 0.9.13",
+    "arviz == 0.19.0",
+    "watchfiles == 0.24.0",
+]
+description = "Bayesian dashboards"
 dynamic = ["version"]
 keywords = []
 license = {file = "LICENSE"}
 maintainers = []
 name = "arviz_dashboard"
 readme = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">3.9"
+requires-python = ">3.10,<3.12"
 
 [project.optional-dependencies]
-dev = ["pre-commit"]
+dev = [
+  "black",
+  "flake8",
+  "flake8-annotations",
+  "flake8-builtins",
+  "flake8-debugger",
+  "flake8-eradicate",
+  "flake8-markdown",
+  "flake8-print",
+  "flake8-pyproject",
+  "ipdb",
+  "isort",
+  "mdformat",
+  "mdformat-myst",
+  "mdformat_tables",
+  "pre-commit",
+  "pycln",
+  "pydoclint",
+  "pyre-check",
+  "yamlfix",
+]
 examples = ["pymc"]
+notebooks = [
+  "jupyterlab",
+  "jupyterlab-katex",
+  "jupyterlab-spellchecker",
+  "jupyterlab-unfold",
+  "jupyterlab_code_formatter",
+]
+tests = [
+  "pytest",
+  "pytest-cov",
+]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/arviz-devs/arviz_dashboard/issues"
@@ -38,40 +69,11 @@ examples = ["pymc"]
 "Homepage" = "https://github.com/arviz-devs/arviz_dashboard"
 "Repository" = "https://github.com/arviz-devs/arviz_dashboard"
 
-[tool.hatch.version]
-path = "src/arviz_dashboard/__init__.py"
-
-[tool.isort]
-force_grid_wrap = 0
-include_trailing_comma = true
-line_length = 100
-multi_line_output = 3
-profile = "black"
-use_parentheses = true
-
 [tool.black]
 line-length = 100
 
-[tool.ruff]
-line-length = 100
-per-file-ignores = {"__init__.py" = ["F401"]}
-
-[tool.pycln]
-all = true
-disable_all_dunder_policy = true
-expand_stars = true
-extend_exclude = "__init__.py"
-path = "src/arviz_dashboard"
-verbose = true
-
-[tool.yamlfix]
-explicit_start = false
-line_length = 100
-section_whitelines = 1
-sequence_style = "block_style"
-whitelines = 1
-
 [tool.flake8]
+extend-exclude = "src/arviz_dashboard/panel"
 ignore = [
   "ANN002", # missing type annotations for *args
   "ANN003", # missing type annotations for *kwargs
@@ -82,5 +84,28 @@ ignore = [
 max-line-length = 100
 per-file-ignores = ["__init__.py:F401"]
 
+[tool.isort]
+force_grid_wrap = 0
+include_trailing_comma = true
+line_length = 100
+multi_line_output = 3
+profile = "black"
+use_parentheses = true
+
+[tool.pycln]
+all = true
+disable_all_dunder_policy = true
+expand_stars = true
+extend_exclude = "__init__.py"
+path = "src/arviz_dashboard"
+verbose = true
+
 [tool.pydoclint]
 style = "numpy"
+
+[tool.yamlfix]
+explicit_start = false
+line_length = 100
+section_whitelines = 1
+sequence_style = "block_style"
+whitelines = 1

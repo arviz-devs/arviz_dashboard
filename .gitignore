@@ -1,5 +1,12 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
+*.egg-info
 
-# Jupyter Notebook
+# Node
+node_modules/
+
+# JavaScript
+src/arviz_dashboard/static/
+
+# Jupyter
 .ipynb_checkpoints
