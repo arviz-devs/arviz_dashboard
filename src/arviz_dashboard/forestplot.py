@@ -7,7 +7,7 @@ import traitlets
 
 
 class Forestplot(anywidget.AnyWidget):
-    _esm = Path(__file__).parent.resolve() / "static" / "widget.js"
+    _esm = Path(__file__).parent.resolve() / "static" / "forestplot.js"
     posterior = traitlets.Dict().tag(sync=True)
 
     def __init__(self: Forestplot, posterior: dict) -> None:
