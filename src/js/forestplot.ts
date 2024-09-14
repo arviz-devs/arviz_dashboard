@@ -52,8 +52,6 @@ function render({ model, el }) {
 
   select_div.appendChild(data_variables_select);
   select_div.appendChild(data_dimensions_select);
-  // let selected_data_variable = data_variables_select.value;
-  // let selected_coordinates_variable = data_coordinates_select.value;
 
   let x = posterior["coords"]["draw"]["data"];
   let y = posterior_data[data_variables_select.value][data_dimensions_select.value]["chains"]["chain0"];
@@ -80,6 +78,37 @@ function render({ model, el }) {
     ]
   });
   plot_div.appendChild(plot);
+
+  data_variables_select.addEventListener("change", update_plot);
+  data_dimensions_select.addEventListener("change", update_plot);
+  function update_plot() {
+    let selected_data_variable = data_variables_select.value;
+    let selected_dimension_variable = data_dimensions_select.value;
+    let x = posterior["coords"]["draw"]["data"];
+    let y = posterior_data[selected_data_variable][selected_dimension_variable]["chains"]["chain0"];
+    let plot_data = new Array();
+    for (let i = 0; i < x.length; i++) {
+      plot_data.push({ "x": x[i], "y": y[i] })
+    }
+    let new_plot = Plot.plot({
+      grid: true,
+      inset: 10,
+      color: { legend: true },
+      marks: [
+        Plot.frame(),
+        Plot.line(
+          plot_data,
+          {
+            x: "x",
+            y: "y",
+          }
+        )
+      ]
+    });
+    plot_div.lastChild.remove();
+    plot_div.appendChild(new_plot)
+  }
+  update_plot();
 
   const div = document.createElement("div");
   div.appendChild(select_div);
