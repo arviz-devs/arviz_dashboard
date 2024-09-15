@@ -2,6 +2,7 @@ import * as Plot from "@observablehq/plot";
 
 function render({ model, el }) {
   const posterior = model.get("posterior");
+  const num_chains = posterior["coords"]["chain"]["data"].length
   const posterior_hierarchy = determine_posterior_hierarchy(posterior);
   const posterior_data = parse_posterior_data(posterior);
   window.posterior_data = posterior_data;
@@ -53,30 +54,34 @@ function render({ model, el }) {
   select_div.appendChild(data_variables_select);
   select_div.appendChild(data_dimensions_select);
 
+
+  // Add data to the plot.
+  let chain_lines = new Array();
   let x = posterior["coords"]["draw"]["data"];
-  let y = posterior_data[data_variables_select.value][data_dimensions_select.value]["chains"]["chain0"];
-  let plot_data = new Array();
-  for (let i = 0; i < x.length; i++) {
-    plot_data.push({ "x": x[i], "y": y[i] })
+  for (let chain_num = 0; chain_num < num_chains; chain_num++) {
+    let y = posterior_data[data_variables_select.value][data_dimensions_select.value]["chains"][`chain${chain_num}`];
+    let plot_data = new Array();
+    for (let i = 0; i < x.length; i++) {
+      plot_data.push({ "x": x[i], "y": y[i] })
+    }
+    chain_lines.push(Plot.line(plot_data, { x: "x", y: "y" }))
   }
-  const plot_div = document.createElement("div");
-  plot_div.style.width = "1000px";
-  plot_div.style.height = "600px";
+
+  // Create the plot.
   let plot = Plot.plot({
     grid: true,
     inset: 10,
-    color: { legend: true },
+    color: { range: ["steelblue", "orange", "brown", "grey"], legend: true, },
     marks: [
       Plot.frame(),
-      Plot.line(
-        plot_data,
-        {
-          x: "x",
-          y: "y",
-        }
-      )
+      ...chain_lines,
     ]
   });
+
+
+  const plot_div = document.createElement("div");
+  plot_div.style.width = "1000px";
+  plot_div.style.height = "600px";
   plot_div.appendChild(plot);
 
   data_variables_select.addEventListener("change", update_plot);
@@ -84,28 +89,51 @@ function render({ model, el }) {
   function update_plot() {
     let selected_data_variable = data_variables_select.value;
     let selected_dimension_variable = data_dimensions_select.value;
+    // let x = posterior["coords"]["draw"]["data"];
+    // let y = posterior_data[selected_data_variable][selected_dimension_variable]["chains"]["chain0"];
+    // let plot_data = new Array();
+    // for (let i = 0; i < x.length; i++) {
+    //   plot_data.push({ "x": x[i], "y": y[i] })
+    // }
+    // let new_plot = Plot.plot({
+    //   grid: true,
+    //   inset: 10,
+    //   color: { legend: true },
+    //   marks: [
+    //     Plot.frame(),
+    //     Plot.line(
+    //       plot_data,
+    //       {
+    //         x: "x",
+    //         y: "y",
+    //       }
+    //     )
+    //   ]
+    // });
+    let chain_lines = new Array();
     let x = posterior["coords"]["draw"]["data"];
-    let y = posterior_data[selected_data_variable][selected_dimension_variable]["chains"]["chain0"];
-    let plot_data = new Array();
-    for (let i = 0; i < x.length; i++) {
-      plot_data.push({ "x": x[i], "y": y[i] })
+    for (let chain_num = 0; chain_num < num_chains; chain_num++) {
+      let y = posterior_data[data_variables_select.value][data_dimensions_select.value]["chains"][`chain${chain_num}`];
+      let plot_data = new Array();
+      for (let i = 0; i < x.length; i++) {
+        plot_data.push({ "Draw": x[i], "y": y[i], "chain": `Chain: ${chain_num}` })
+      }
+      chain_lines.push(Plot.line(plot_data, { x: "Draw", y: "y", stroke: "chain", tip: true, strokeOpacity: 0.7 }))
     }
+
+    // Create the plot.
     let new_plot = Plot.plot({
       grid: true,
       inset: 10,
-      color: { legend: true },
+      color: { range: ["steelblue", "orange", "brown", "grey"], legend: true, },
       marks: [
         Plot.frame(),
-        Plot.line(
-          plot_data,
-          {
-            x: "x",
-            y: "y",
-          }
-        )
-      ]
+        chain_lines,
+      ],
     });
-    plot_div.lastChild.remove();
+    if (plot_div.lastChild != null) {
+      plot_div.lastChild.remove();
+    }
     plot_div.appendChild(new_plot)
   }
   update_plot();
@@ -146,14 +174,14 @@ function determine_posterior_hierarchy(posterior) {
 function parse_posterior_data(posterior) {
   const posterior_hierarchy = determine_posterior_hierarchy(posterior);
 
-  const data = {};
+  const data = new Map();
   const num_chains = posterior["coords"]["chain"]["data"].length;
   const num_draws = posterior["coords"]["draw"]["data"].length;
   // Create the data structure to hold hierarchical variables.
   for (let data_variable_name in posterior_hierarchy) {
     const data_variable_object = posterior["data_vars"][data_variable_name]
     const chain_data = data_variable_object["data"]
-    data[data_variable_name] = {}
+    data[data_variable_name] = new Map()
     for (let i = 0; i < num_chains; i++) {
       const chain_draws = chain_data[i];
 
@@ -163,7 +191,7 @@ function parse_posterior_data(posterior) {
       // Handle non-hierarchical data variables.
       if (!is_hierarchical) {
         if (i === 0) {
-          data[data_variable_name]["chains"] = {}
+          data[data_variable_name]["chains"] = new Map();
           data[data_variable_name]["chains"][`chain${i}`] = new Array();
         } else {
           data[data_variable_name]["chains"][`chain${i}`] = new Array();
@@ -176,8 +204,8 @@ function parse_posterior_data(posterior) {
         for (let j = 0; j < data_dimension_names.length; j++) {
           const data_dimension_name = data_dimension_names[j];
           if (i === 0) {
-            data[data_variable_name][data_dimension_name] = {};
-            data[data_variable_name][data_dimension_name]["chains"] = {};
+            data[data_variable_name][data_dimension_name] = new Map();
+            data[data_variable_name][data_dimension_name]["chains"] = new Map();
             data[data_variable_name][data_dimension_name]["chains"][`chain${i}`] = new Array();
           } else {
             data[data_variable_name][data_dimension_name]["chains"][`chain${i}`] = new Array();
@@ -213,6 +241,50 @@ function parse_posterior_data(posterior) {
             data[data_variable_name][data_dimension_name]["chains"][`chain${i}`].push(data_dimension_value);
           }
         }
+      }
+    }
+  }
+  return data;
+}
+
+function compute_forestplot_data(posterior_data, posterior_hierarchy) {
+  let data = new Array();
+  for (let data_variable in posterior_data) {
+    const data_dimensions = posterior_hierarchy[data_variable]
+
+    // Handle data variables that DO NOT have extra dimensions.
+    if (data_dimensions.length === 0) {
+      const chain_data_array = posterior_data[data_variable]["chains"]
+      let all_chain_data: number[] = new Array();
+      for (let chain_data of chain_data_array) {
+        all_chain_data.push(...chain_data);
+      }
+      const mean = all_chain_data.reduce((previous, current) => previous + current, 0) / all_chain_data.length;
+      let datum = {
+        "name": data_variable,
+        "min": Math.min(...all_chain_data),
+        "mean": mean,
+        "max": Math.max(...all_chain_data),
+      }
+      data.push(datum);
+    }
+
+    // Handle data variables that HAVE extra dimensions.
+    if (data_dimensions.length != 0) {
+      for (let data_dimension of data_dimensions) {
+        const chain_data_array = posterior_data[data_variable][data_dimension]["chains"]
+        let all_chain_data: number[] = new Array();
+        for (let chain_data of chain_data_array) {
+          all_chain_data.push(...chain_data);
+        }
+        const mean = all_chain_data.reduce((previous, current) => previous + current, 0) / all_chain_data.length;
+        let datum = {
+          "name": `${data_variable}[${data_dimension}]`,
+          "min": Math.min(...all_chain_data),
+          "mean": mean,
+          "max": Math.max(...all_chain_data),
+        }
+        data.push(datum);
       }
     }
   }
