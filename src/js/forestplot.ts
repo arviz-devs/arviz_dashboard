@@ -10,16 +10,40 @@ function render({ model, el }) {
   // Create a `div` for the selects.
   const select_div = document.createElement("div");
   select_div.style.width = "1000px";
-  select_div.style.height = "25px";
+  select_div.style.height = "50px";
 
   // Create selects for both the `data_vars` and any `coords` associated with a
   // `data_var`.
   const data_variables_select = document.createElement("select");
   data_variables_select.name = "data variables";
   data_variables_select.id = "data-variables-select";
+  data_variables_select.addEventListener("change", update_plot);
+
   const data_dimensions_select = document.createElement("select");
   data_dimensions_select.name = "data dimensions";
   data_dimensions_select.id = "data-dimensions-select";
+  data_dimensions_select.addEventListener("change", update_plot);
+
+  // Create a div for the chains.
+  const chains_div = document.createElement("div");
+  chains_div.style.width = "1000px";
+  chains_div.style.height = "25px";
+  chains_div.style.display = "flex"
+  chains_div.style.flexDirection = "row";
+  chains_div.style.alignItems = "center";
+  for (let chain_num of [...Array(num_chains).keys()]) {
+    const chain_checkbox = document.createElement("input");
+    chain_checkbox.type = "checkbox";
+    chain_checkbox.name = "input";
+    chain_checkbox.id = `chain-${chain_num}`;
+    chain_checkbox.checked = true;
+    chain_checkbox.addEventListener("change", update_plot)
+    const chain_label = document.createElement("label");
+    chain_label.htmlFor = `chain-${chain_num}`;
+    chain_label.innerHTML = `Chain: ${chain_num}`;
+    chains_div.appendChild(chain_checkbox);
+    chains_div.appendChild(chain_label);
+  }
 
   // Populate the `data_variables_select` menu with options.
   for (let data_variable_name in posterior_hierarchy) {
@@ -53,88 +77,47 @@ function render({ model, el }) {
 
   select_div.appendChild(data_variables_select);
   select_div.appendChild(data_dimensions_select);
-
-
-  // Add data to the plot.
-  let chain_lines = new Array();
-  let x = posterior["coords"]["draw"]["data"];
-  for (let chain_num = 0; chain_num < num_chains; chain_num++) {
-    let y = posterior_data[data_variables_select.value][data_dimensions_select.value]["chains"][`chain${chain_num}`];
-    let plot_data = new Array();
-    for (let i = 0; i < x.length; i++) {
-      plot_data.push({ "x": x[i], "y": y[i] })
-    }
-    chain_lines.push(Plot.line(plot_data, { x: "x", y: "y" }))
-  }
-
-  // Create the plot.
-  let plot = Plot.plot({
-    grid: true,
-    inset: 10,
-    color: { range: ["steelblue", "orange", "brown", "grey"], legend: true, },
-    marks: [
-      Plot.frame(),
-      ...chain_lines,
-    ]
-  });
-
+  select_div.append(chains_div);
 
   const plot_div = document.createElement("div");
   plot_div.style.width = "1000px";
   plot_div.style.height = "600px";
-  plot_div.appendChild(plot);
 
-  data_variables_select.addEventListener("change", update_plot);
-  data_dimensions_select.addEventListener("change", update_plot);
   function update_plot() {
     let selected_data_variable = data_variables_select.value;
     let selected_dimension_variable = data_dimensions_select.value;
-    // let x = posterior["coords"]["draw"]["data"];
-    // let y = posterior_data[selected_data_variable][selected_dimension_variable]["chains"]["chain0"];
-    // let plot_data = new Array();
-    // for (let i = 0; i < x.length; i++) {
-    //   plot_data.push({ "x": x[i], "y": y[i] })
-    // }
-    // let new_plot = Plot.plot({
-    //   grid: true,
-    //   inset: 10,
-    //   color: { legend: true },
-    //   marks: [
-    //     Plot.frame(),
-    //     Plot.line(
-    //       plot_data,
-    //       {
-    //         x: "x",
-    //         y: "y",
-    //       }
-    //     )
-    //   ]
-    // });
+    let y_name = `${selected_data_variable} [${selected_dimension_variable}]`
     let chain_lines = new Array();
     let x = posterior["coords"]["draw"]["data"];
+    let opacity = 0.5;
+    let tip = true;
     for (let chain_num = 0; chain_num < num_chains; chain_num++) {
-      let y = posterior_data[data_variables_select.value][data_dimensions_select.value]["chains"][`chain${chain_num}`];
+      let checkbox = document.getElementById(`chain-${chain_num}`)
+      if (checkbox != null) {
+        opacity = (checkbox as HTMLInputElement).checked ? 0.5 : 0.1;
+        tip = opacity === 0.5 ? true : false;
+      }
+      else { opacity = 0.5; }
+      let y = posterior_data[selected_data_variable][selected_dimension_variable]["chains"][`chain${chain_num} `];
       let plot_data = new Array();
       for (let i = 0; i < x.length; i++) {
-        plot_data.push({ "Draw": x[i], "y": y[i], "chain": `Chain: ${chain_num}` })
+        let datum = { "Draw": x[i], "chain": `Chain: ${chain_num} ` }
+        datum[y_name] = y[i]
+        plot_data.push(datum)
       }
-      chain_lines.push(Plot.line(plot_data, { x: "Draw", y: "y", stroke: "chain", tip: true, strokeOpacity: 0.7 }))
+      chain_lines.push(Plot.line(plot_data, { x: "Draw", y: y_name, stroke: "chain", tip: tip, strokeOpacity: opacity }))
     }
 
     // Create the plot.
-    let new_plot = Plot.plot({
+    let plot = Plot.plot({
       grid: true,
       inset: 10,
-      color: { range: ["steelblue", "orange", "brown", "grey"], legend: true, },
-      marks: [
-        Plot.frame(),
-        chain_lines,
-      ],
+      marks: [Plot.frame(), chain_lines],
     });
     if (plot_div.lastChild != null) {
       plot_div.lastChild.remove();
     }
-    plot_div.appendChild(new_plot)
+    plot_div.appendChild(plot)
   }
   update_plot();
 
@@ -192,9 +175,9 @@ function parse_posterior_data(posterior) {
       if (!is_hierarchical) {
         if (i === 0) {
           data[data_variable_name]["chains"] = new Map();
-          data[data_variable_name]["chains"][`chain${i}`] = new Array();
+          data[data_variable_name]["chains"][`chain${i} `] = new Array();
         } else {
-          data[data_variable_name]["chains"][`chain${i}`] = new Array();
+          data[data_variable_name]["chains"][`chain${i} `] = new Array();
         }
       }
 
@@ -206,9 +189,9 @@ function parse_posterior_data(posterior) {
           if (i === 0) {
             data[data_variable_name][data_dimension_name] = new Map();
             data[data_variable_name][data_dimension_name]["chains"] = new Map();
-            data[data_variable_name][data_dimension_name]["chains"][`chain${i}`] = new Array();
+            data[data_variable_name][data_dimension_name]["chains"][`chain${i} `] = new Array();
           } else {
-            data[data_variable_name][data_dimension_name]["chains"][`chain${i}`] = new Array();
+            data[data_variable_name][data_dimension_name]["chains"][`chain${i} `] = new Array();
           }
         }
       }
@@ -227,7 +210,7 @@ function parse_posterior_data(posterior) {
 
       // Handle non-hierarchical data variables.
       if (!is_hierarchical) {
-        data[data_variable_name]["chains"][`chain${i}`] = chain_draws;
+        data[data_variable_name]["chains"][`chain${i} `] = chain_draws;
         continue;
       }
 
@@ -238,7 +221,7 @@ function parse_posterior_data(posterior) {
           for (let k = 0; k < data_dimension_names.length; k++) {
             const data_dimension_name = data_dimension_names[k];
             const data_dimension_value = chain_draws[j][k];
-            data[data_variable_name][data_dimension_name]["chains"][`chain${i}`].push(data_dimension_value);
+            data[data_variable_name][data_dimension_name]["chains"][`chain${i} `].push(data_dimension_value);
           }
         }
       }
@@ -279,7 +262,7 @@ function compute_forestplot_data(posterior_data, posterior_hierarchy) {
         }
         const mean = all_chain_data.reduce((previous, current) => previous + current, 0) / all_chain_data.length;
         let datum = {
-          "name": `${data_variable}[${data_dimension}]`,
+          "name": `${data_variable} [${data_dimension}]`,
           "min": Math.min(...all_chain_data),
           "mean": mean,
           "max": Math.max(...all_chain_data),
