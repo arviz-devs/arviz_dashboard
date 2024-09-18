@@ -26,9 +26,9 @@ Once the virtual environment has been created, and you have activated it with th
 you can install the development requirements for `arviz_dashboard` with the following commands.
 
 ```bash
-git clone the https://github.com/arviz-devs/arviz_dashboard
+git clone https://github.com/arviz-devs/arviz_dashboard
 cd arviz_dashboard
-pip install --editable .[dev,examples]
+pip install --editable '.[dev,examples]'
 ```
 
 Once the package has been installed, we need to install the `pre-commit` hooks used for maintaining
