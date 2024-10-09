@@ -15,10 +15,12 @@ class Forestplot(anywidget.AnyWidget):
     posterior = traitlets.Dict().tag(sync=True)
     hierarchy = traitlets.Dict().tag(sync=True)
     num_chains = traitlets.Integer().tag(sync=True)
+    num_draws = traitlets.Integer().tag(sync=True)
 
     def __init__(self, idata) -> None:
         data = self.parse_posterior_data(idata=idata)
         self.num_chains = len(idata["posterior"].coords["chain"])
+        self.num_draws = len(idata["posterior"].coords["draw"])
         super().__init__(posterior=data["posterior"], hierarchy=data["hierarchy"])
 
     def parse_posterior_data(self, idata) -> PosteriorData:
@@ -65,11 +67,11 @@ class Forestplot(anywidget.AnyWidget):
                 )
                 for coordinate in coordinates:
                     if coordinate not in hierarchy[data_variable]:
-                        hierarchy[data_variable] = []
+                        hierarchy[data_variable][coordinate] = []
                     if coordinate not in data[data_variable]["coordinates"]:
                         data[data_variable]["coordinates"][coordinate] = {}
                     dimensions = coordinates_chains_df[coordinate].unique()
-                    hierarchy[data_variable] = dimensions.tolist()
+                    hierarchy[data_variable][coordinate] = dimensions.tolist()
                     for dimension in dimensions:
                         if dimension not in data[data_variable]["coordinates"][coordinate]:
                             data[data_variable]["coordinates"][coordinate][dimension] = {
