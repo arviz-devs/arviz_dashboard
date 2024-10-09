@@ -7,7 +7,8 @@
 	},
 	"dependencies": {
 		"@anywidget/types": "^0.1.9",
-		"@observablehq/plot": "^0.6.16"
+		"@observablehq/plot": "^0.6.16",
+		"arvizjs": "^0.1.0"
 	},
 	"devDependencies": {
 		"esbuild": "^0.23.0",

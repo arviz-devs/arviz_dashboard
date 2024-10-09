@@ -17,7 +17,9 @@ classifiers = [
 dependencies = [
     "anywidget == 0.9.13",
     "arviz == 0.19.0",
+    "arviz-base ~= 0.2.0",
     "watchfiles == 0.24.0",
+    "xarray-datatree ~= 0.0.14",
 ]
 description = "Bayesian dashboards"
 dynamic = ["version"]
