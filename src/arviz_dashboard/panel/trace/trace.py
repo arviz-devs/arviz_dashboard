@@ -3,20 +3,20 @@ from __future__ import annotations
 import arviz as az
 import panel as pn
 import param
+from bokeh.models.callbacks import CustomJS
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models.tools import HoverTool
 from bokeh.palettes import Colorblind8
 from bokeh.plotting import figure
 
+from arviz_dashboard import plots, widgets
 from arviz_dashboard.dashboards import DashboardBaseClass
-from arviz_dashboard import plots
-from arviz_dashboard import widgets
 
 pn.extension()
 
 
-def posterior_marginal1d(idata: az.InferenceData) -> None:
-    """Dashboard for the one-dimensional marginals of random variable posteriors.
+def trace(idata: az.InferenceData) -> None:
+    """Dashboard for trace plots of random variable posteriors.
 
     Parameters
     ----------
@@ -33,7 +33,7 @@ def posterior_marginal1d(idata: az.InferenceData) -> None:
     #       used in a model, and this is a way to create them within the class below.
     Widgets = type("Widgets", (param.Parameterized,), widgets.create_selectors(idata))
 
-    class PosteriorMarginal1d(DashboardBaseClass, Widgets):
+    class Trace(DashboardBaseClass, Widgets):
         """Parameterized class to that computes and reacts to user interactions.
 
         Parameters
@@ -43,17 +43,14 @@ def posterior_marginal1d(idata: az.InferenceData) -> None:
         """
 
         chain_aggregation = param.Selector(objects=["separate", "aggregate"])
-        figure_names = ["marginal"]
+        figure_names = ["marginal", "trace"]
 
-        def __init__(
-            self: PosteriorMarginal1d,
-            idata: az.InferenceData,
-            **params,
-        ) -> None:
+        def __init__(self: Trace, idata: az.InferenceData, **params) -> None:
             # Initialize param and the base class
             super().__init__(idata, **params)
+            self.num_draws = self.posterior.dims["draw"]
 
-        def _compute(self: PosteriorMarginal1d) -> dict[str, dict[str, list[float]]]:
+        def _compute(self: Trace) -> dict[str, dict[str, list[float]]]:
             output = {}
             rv_data_xarray = self.posterior[self.rv_selector]
             rv_dimensions = list(rv_data_xarray.coords)
@@ -98,9 +95,16 @@ def posterior_marginal1d(idata: az.InferenceData) -> None:
                             "density": density.tolist(),
                             "bandwidth": [float(bandwidth)],
                         }
+                if figure_name == "trace":
+                    for i, chain in enumerate(self.chain_selector):
+                        chain_data = data[i]
+                        output[figure_name][f"{chain}"] = {
+                            "x": list(range(self.num_draws)),
+                            "y": chain_data.tolist(),
+                        }
             return output
 
-        def _plot(self: PosteriorMarginal1d, *args) -> figure:
+        def _plot(self: Trace, *args) -> figure:
             data = self.compute()
             figures = {}
             for figure_name, figure_data in data.items():
@@ -134,7 +138,31 @@ def posterior_marginal1d(idata: az.InferenceData) -> None:
                         )
                         fig.add_tools(tips)
                     figures[figure_name] = fig
+                if figure_name == "trace":
+                    fig = figure()
+                    plots.style_figure(fig, self.rv_selector)
+                    for i, (chain, chain_data) in enumerate(figure_data.items()):
+                        color = self.palette[i]
+                        cds = ColumnDataSource(
+                            data={"x": chain_data["x"], "y": chain_data["y"]},
+                        )
+                        glyph = fig.line(
+                            x="x",
+                            y="y",
+                            source=cds,
+                            line_alpha=0.6,
+                            line_color=color,
+                            hover_line_alpha=1.0,
+                            hover_line_color=color,
+                        )
+                        tips = HoverTool(
+                            renderers=[glyph],
+                            tooltips=[("Chain", chain), (self.rv_selector, "@y")],
+                        )
+                        fig.add_tools(tips)
+                    figures[figure_name] = fig
+            figures["marginal"].x_range = figures["trace"].y_range
             return pn.Row(*figures.values())
 
-    dashboard = PosteriorMarginal1d(idata)
+    dashboard = Trace(idata)
     return dashboard.show()

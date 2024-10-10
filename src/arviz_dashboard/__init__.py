@@ -1,8 +1,5 @@
-"""Bayesian Dashboards built on top of Panel"""
-__version__ = "0.0.1a"
+"""Dashboards for inspecting Bayesian models."""
 
-from .elpd import dashboard_elpd
-from .ppc import dashboard_ppc
-from .forest import *
-from arviz_dashboard.marginal.one_d import posterior_marginal1d
-from arviz_dashboard.trace.trace import trace
+__version__ = "0.1.0"
+from arviz_dashboard.py import models
+from arviz_dashboard.py.traceplot import Traceplot

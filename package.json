@@ -1,0 +1,18 @@
+{
+	"type": "module",
+	"scripts": {
+		"dev": "npm run build -- --sourcemap=inline --watch",
+		"build": "esbuild src/arviz_dashboard/ts/*.ts --minify --external:fs --external:path --format=esm --bundle --outdir=src/arviz_dashboard/static",
+		"typecheck": "tsc"
+	},
+	"dependencies": {
+		"@anywidget/types": "^0.1.9",
+		"@observablehq/plot": "^0.6.16",
+		"arvizjs": "^0.1.0",
+		"fast-kde": "^0.2.2"
+	},
+	"devDependencies": {
+		"esbuild": "^0.23.0",
+		"typescript": "^5.4.5"
+	}
+}

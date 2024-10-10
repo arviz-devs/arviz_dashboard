@@ -20,7 +20,10 @@ def dashboard_elpd(idatas_cmp):
         name="Threshold Value", start=1, end=3, step=0.1, value=2, width=200
     )
     thre_sel = pn.widgets.Select(
-        value=None, options=list(["standard deviation"]), name="Threshold Type", width=200
+        value=None,
+        options=list(["standard deviation"]),
+        name="Threshold Type",
+        width=200,
     )
     ic_group = pn.widgets.RadioBoxGroup(
         name="Information Criterion", options=["loo", "waic"], inline=True
@@ -51,7 +54,9 @@ def dashboard_elpd(idatas_cmp):
             ):
                 str_pane.object = ""
                 _, scatter_plt = plt.subplots()
-                dict_cmp = {x: idatas_cmp[x] for x in [model_selection1, model_selection2]}
+                dict_cmp = {
+                    x: idatas_cmp[x] for x in [model_selection1, model_selection2]
+                }
 
                 # if the model selection did not change, we only need to update the y_min and y_max
                 az.plot_elpd(
@@ -66,7 +71,9 @@ def dashboard_elpd(idatas_cmp):
             else:
                 str_pane.object = ""
                 _, scatter_plt = plt.subplots()
-                dict_cmp = {x: idatas_cmp[x] for x in [model_selection1, model_selection2]}
+                dict_cmp = {
+                    x: idatas_cmp[x] for x in [model_selection1, model_selection2]
+                }
 
                 # store the model_selection info
                 old_model_select1 = model_selection1
@@ -90,7 +97,9 @@ def dashboard_elpd(idatas_cmp):
             plt.close()
             return scatter_plt.figure
         else:
-            str_pane.object = "Please try again. You can only compare two different models"
+            str_pane.object = (
+                "Please try again. You can only compare two different models"
+            )
 
     @pn.depends(
         model_selection1.param.value,
@@ -103,7 +112,10 @@ def dashboard_elpd(idatas_cmp):
             str_pane.object = ""
             dict_cmp = {x: idatas_cmp[x] for x in [model_selection1, model_selection2]}
             scatter_plt = az.plot_elpd(
-                dict_cmp, plot_kwargs={"marker": "."}, threshold=thre_slider, ic=ic_group
+                dict_cmp,
+                plot_kwargs={"marker": "."},
+                threshold=thre_slider,
+                ic=ic_group,
             )
             scatter_ax = scatter_plt.figure.get_axes()[0]
             plt.close()
@@ -118,7 +130,11 @@ def dashboard_elpd(idatas_cmp):
             category = ["positive", "negative"]
             colors = [Category10[10][0], Category10[10][1]]
 
-            data = {"standard": standard, "positive": [pos_count], "negative": [neg_count]}
+            data = {
+                "standard": standard,
+                "positive": [pos_count],
+                "negative": [neg_count],
+            }
 
             tooltips = "$name @standard: @$name"
 
@@ -143,7 +159,9 @@ def dashboard_elpd(idatas_cmp):
 
             return p
         else:
-            str_pane.object = "Please try again. You can only compare two different models"
+            str_pane.object = (
+                "Please try again. You can only compare two different models"
+            )
 
     @pn.depends(model_selection1.param.value, model_selection2.param.value)
     def get_compare_plot(model_selection1, model_selection2):
@@ -158,7 +176,9 @@ def dashboard_elpd(idatas_cmp):
             compare_plt.height = 300
             return compare_plt
         else:
-            str_pane.object = "Please try again. You can only compare two different models"
+            str_pane.object = (
+                "Please try again. You can only compare two different models"
+            )
 
     # show up
     display(
