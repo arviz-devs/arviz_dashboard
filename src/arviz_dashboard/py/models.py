@@ -1,8 +1,10 @@
-from pathlib import Path
-from typing import TypedDict
+"""Data models.
 
-import anywidget
-import traitlets
+This module contains the classes that define data models used for the corresponding TypeScript
+files, found in `arviz_dashboard/ts`.
+"""
+
+from typing import TypedDict
 
 
 class PosteriorData(TypedDict):
@@ -10,19 +12,7 @@ class PosteriorData(TypedDict):
     posterior: dict
 
 
-class Forestplot(anywidget.AnyWidget):
-    _esm = Path(__file__).parent.resolve() / "static" / "forestplot.js"
-    posterior = traitlets.Dict().tag(sync=True)
-    hierarchy = traitlets.Dict().tag(sync=True)
-    num_chains = traitlets.Integer().tag(sync=True)
-    num_draws = traitlets.Integer().tag(sync=True)
-
-    def __init__(self, idata) -> None:
-        data = self.parse_posterior_data(idata=idata)
-        self.num_chains = len(idata["posterior"].coords["chain"])
-        self.num_draws = len(idata["posterior"].coords["draw"])
-        super().__init__(posterior=data["posterior"], hierarchy=data["hierarchy"])
-
+class PosteriorModel:
     def parse_posterior_data(self, idata) -> PosteriorData:
         posterior = idata["posterior"]
         data_variables = posterior.data_vars
