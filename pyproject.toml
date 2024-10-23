@@ -16,10 +16,9 @@ classifiers = [
 ]
 dependencies = [
     "anywidget == 0.9.13",
-    "arviz == 0.19.0",
-    "arviz-base ~= 0.2.0",
+    "arviz-base[h5netcdf] ~= 0.2.0",
     "watchfiles == 0.24.0",
-    "xarray-datatree ~= 0.0.14",
+    "xarray ~= 2024.9.0",
 ]
 description = "Bayesian dashboards"
 dynamic = ["version"]
@@ -32,25 +31,9 @@ requires-python = ">3.10,<3.12"
 
 [project.optional-dependencies]
 dev = [
-  "black",
-  "flake8",
-  "flake8-annotations",
-  "flake8-builtins",
-  "flake8-debugger",
-  "flake8-eradicate",
-  "flake8-markdown",
-  "flake8-print",
-  "flake8-pyproject",
   "ipdb",
-  "isort",
-  "mdformat",
-  "mdformat-myst",
-  "mdformat_tables",
   "pre-commit",
-  "pycln",
-  "pydoclint",
-  "pyre-check",
-  "yamlfix",
+  "ruff",
 ]
 examples = ["pymc"]
 notebooks = [
@@ -71,43 +54,12 @@ tests = [
 "Homepage" = "https://github.com/arviz-devs/arviz_dashboard"
 "Repository" = "https://github.com/arviz-devs/arviz_dashboard"
 
-[tool.black]
+[tool.ruff]
 line-length = 100
+target-version = "py311"
 
-[tool.flake8]
-extend-exclude = "src/arviz_dashboard/panel"
-ignore = [
-  "ANN002", # missing type annotations for *args
-  "ANN003", # missing type annotations for *kwargs
-  "D100", # missing docstring in public module
-  "D104", # missing docstring in public package
-  "D107", # missing docstring in __init__ methods of classes
-]
-max-line-length = 100
-per-file-ignores = ["__init__.py:F401"]
+[tool.ruff.lint]
+select = ["ALL"]
 
-[tool.isort]
-force_grid_wrap = 0
-include_trailing_comma = true
-line_length = 100
-multi_line_output = 3
-profile = "black"
-use_parentheses = true
-
-[tool.pycln]
-all = true
-disable_all_dunder_policy = true
-expand_stars = true
-extend_exclude = "__init__.py"
-path = "src/arviz_dashboard"
-verbose = true
-
-[tool.pydoclint]
-style = "numpy"
-
-[tool.yamlfix]
-explicit_start = false
-line_length = 100
-section_whitelines = 1
-sequence_style = "block_style"
-whitelines = 1
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
