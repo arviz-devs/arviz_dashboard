@@ -2,6 +2,7 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
+      - id: check-added-large-files
       - id: check-case-conflict
       - id: check-docstring-first
       - id: check-json
@@ -21,67 +22,14 @@ repos:
           - --branch=main
       - id: trailing-whitespace
 
-  # Sort Python imports using `isort`.
-  - repo: https://github.com/pycqa/isort
-    rev: 5.13.2
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.9
     hooks:
-      - id: isort
+      - id: ruff
         args:
-          - --force-grid-wrap=0
-          - --line-length=88
-          - --multi-line=3
-          - --overwrite-in-place
-          - --profile=black
-          - --trailing-comma
-          - --use-parentheses
-
-  # Remove all unused imports for Python files.
-  - repo: https://github.com/hadialqattan/pycln
-    rev: v2.4.0
-    hooks:
-      - id: pycln
-
-  # Python formatting using `black`.
-  - repo: https://github.com/psf/black
-    rev: 24.8.0
-    hooks:
-      - id: black
-        name: format Python code using black
-        args:
-          - --line-length=88
-          - --verbose
-
-  # Markdown formatting using `mdformat`.
-  - repo: https://github.com/executablebooks/mdformat
-    rev: 0.7.17
-    hooks:
-      - id: mdformat
-        args:
-          - --wrap=88
-        additional_dependencies:
-          - mdformat-myst==0.1.5
-          - mdformat_tables==1.0.0
-
-  # Check Python docstrings are formatted correctly.
-  - repo: https://github.com/jsh9/pydoclint
-    rev: 0.5.7
-    hooks:
-      - id: pydoclint
-        args:
-          - --config=pyproject.toml
-
-  # Run `flake8` on Python files.
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.1.1
-    hooks:
-      - id: flake8
-        args:
-          - --verbose
-        additional_dependencies:
-          - flake8-annotations==3.1.1
-          - flake8-builtins==2.5.0
-          - flake8-debugger==4.1.2
-          - flake8-eradicate==1.5.0
-          - flake8-markdown==0.5.0
-          - flake8-print==5.0.0
-          - flake8-pyproject==1.2.3
+          - --fix
+          - --exit-non-zero-on-fix
+      - id: ruff-format
+        types_or:
+          - python
+          - pyi
