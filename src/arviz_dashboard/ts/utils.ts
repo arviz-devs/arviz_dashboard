@@ -1,10 +1,10 @@
-export const getNestedObject = (nested_object: Object, path_array: Array<string>) => {
+export function get_from_nested_object(nested_object: Object, path_array: Array<string>): any {
     return path_array.reduce((obj: Object, key: string) => {
         return obj && obj[key] !== "undefined" ? obj[key] : undefined
     }, nested_object)
 }
 
-export const sum = (data: number[]): number => {
+export function sum(data: number[]): number {
     if (!data || data.length === 0) {
         return NaN
     } else {
@@ -14,7 +14,7 @@ export const sum = (data: number[]): number => {
     }
 }
 
-export const mean = (data: number[]): number => {
+export function mean(data: number[]): number {
     if (!data || data.length === 0) {
         return NaN
     } else {
@@ -22,7 +22,7 @@ export const mean = (data: number[]): number => {
     }
 }
 
-export const std = (data: number[]): number => {
+export function std(data: number[]): number {
     if (!data || data.length === 0) {
         return NaN
     } else {
@@ -36,7 +36,7 @@ export const std = (data: number[]): number => {
     }
 }
 
-export const percentile = (data: number[], percent: number): number => {
+export function percentile(data: number[], percent: number): number {
     if (!data || data.length == 0) {
         return NaN
     }

@@ -26,8 +26,8 @@ class PosteriorModel:
                 original_dictionary[key] = value
         return original_dictionary
 
-    def parse_posterior_data(self, idata: DataTree) -> PosteriorData:
-        posterior = idata["posterior"]
+    def parse_posterior_data(self, dt: DataTree) -> PosteriorData:
+        posterior = dt["posterior"]
         data_variables = posterior.data_vars
         num_chains = len(posterior.coords["chain"].data)
         num_draws = len(posterior.coords["draw"].data)

@@ -2,7 +2,7 @@ import * as Plot from "@observablehq/plot"
 import {density1d} from "fast-kde/src/density1d"
 
 import {linearRange} from "arvizjs/src/lib/stats/array"
-import {getNestedObject} from "./utils"
+import {get_from_nested_object} from "./utils"
 
 function determine_num_grid_columns(dropdowns) {
     let num_dimensions = 0
@@ -209,7 +209,7 @@ function render({model, el}) {
             // Get the y-values for the traceplot from the posterior data.
             let y = new Array()
             if (extra_dimensions.length !== 0) {
-                y = getNestedObject(
+                y = get_from_nested_object(
                     posterior,
                     [data_variable_name].concat([...coordinate_names, "chain", chain_num]),
                 )

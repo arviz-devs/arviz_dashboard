@@ -1,14 +1,15 @@
 import {interval as hdiInterval} from "arvizjs/src/lib/stats/highestDensityInterval"
 import {mean} from "arvizjs/src/lib/stats/pointStatistics"
-import {getNestedObject} from "./utils"
+import {get_from_nested_object} from "./utils"
 
 function render({model, el}) {
     const data = model.get("data")
     const posterior = data.posterior
     const hierarchy = data.dropdowns
 
-    const forest_data = compute_forestplot_data(posterior, 0.89)
-    window.forest = forest_data
+    const flat_posterior = flatten_posterior(posterior)
+    const forest_data = compute_forest_data(flat_posterior)
+    window.forest_data = forest_data
 
     // Create a div for the forestplot.
     const forestplot_div = document.createElement("div")
@@ -47,14 +48,14 @@ function render({model, el}) {
     el.appendChild(select_div)
 }
 
-function flatten_posterior_dimensions(posterior) {
-    function is_object(dimension) {
+function flatten_posterior_dimensions(posterior: Posterior): Array<string> {
+    function is_object(dimension: any) {
         return dimension && typeof dimension === "object" && !Array.isArray(dimension)
     }
-    function add_delimiter(parent, child) {
+    function add_delimiter(parent: string, child: string): string {
         return parent ? `${parent}.${child}` : child
     }
-    function paths(obj = {}, head = "") {
+    function paths(obj: Object = {}, head: string = "") {
         return Object.entries(obj).reduce((product, [key, value]) => {
             let full_path = add_delimiter(head, key)
             return is_object(value) && head != "chain"
@@ -66,22 +67,29 @@ function flatten_posterior_dimensions(posterior) {
     return paths(posterior)
 }
 
-function chunk(array, size) {
-    const chunkedArray = []
+function chunk(array: Array<string>, size: number) {
+    const chunked_array = new Array()
     let index = 0
     while (index < array.length) {
-        chunkedArray.push(array.slice(index, size + index))
+        chunked_array.push(array.slice(index, size + index))
         index += size
     }
-    return chunkedArray
+    return chunked_array
 }
 
-function compute_forestplot_data(posterior, hdiProbability = 0.89) {
+interface FlatPosterior {
+    [key: string]: number[][]
+}
+interface Posterior {
+    [key: string]: Object
+}
+
+function flatten_posterior(posterior: Posterior): FlatPosterior {
     const posterior_paths = flatten_posterior_dimensions(posterior)
-    const flat_posterior = new Object()
-    for (let posterior_path of posterior_paths) {
+    const flat_posterior = new Object() as FlatPosterior
+    for (const posterior_path of posterior_paths) {
         const posterior_path_tokens = posterior_path.split(".")
-        const chain_data = getNestedObject(posterior, posterior_path_tokens)
+        const chain_data: number[][] = get_from_nested_object(posterior, posterior_path_tokens)
         const data_variable = posterior_path_tokens.splice(0, 1)[0]
         // Remove the "chain" entry.
         const chain_index = posterior_path_tokens.indexOf("chain")
@@ -92,12 +100,10 @@ function compute_forestplot_data(posterior, hdiProbability = 0.89) {
         // Next we concatenate the grouped values together.
         const dimension_value_names = new Array()
         for (const group of groups) {
-            console.log(group)
             const dimension_value = group.join("=")
             dimension_value_names.push(dimension_value)
         }
         const all_dimensions_and_values = dimension_value_names.join(",")
-        console.log(all_dimensions_and_values)
         let key = ""
         if (!all_dimensions_and_values) {
             key = `${data_variable}`
@@ -107,6 +113,43 @@ function compute_forestplot_data(posterior, hdiProbability = 0.89) {
         flat_posterior[key] = chain_data
     }
     return flat_posterior
+}
+
+function compute_forest_data(
+    flat_posterior: FlatPosterior,
+    combine_chains: boolean = false,
+    hdi_probability: number = 0.89,
+) {
+    let hdi = new Object()
+    for (const key in flat_posterior) {
+        const chain_data = flat_posterior[key]
+        if (combine_chains) {
+            const all_chain_data = new Array()
+            for (const chain_datum of chain_data) {
+                all_chain_data.push(...chain_datum)
+            }
+            const datum = hdiInterval(all_chain_data, hdi_probability)
+            hdi[key] = [
+                {
+                    hdi_lower: datum.lowerBound,
+                    mean: mean(all_chain_data),
+                    hdi_upper: datum.upperBound,
+                },
+            ]
+        } else {
+            const hdi_datum = new Array()
+            for (const chain_datum of chain_data) {
+                const datum = hdiInterval(chain_datum, hdi_probability)
+                hdi_datum.push({
+                    hdi_lower: datum.lowerBound,
+                    mean: mean(chain_datum),
+                    hdi_upper: datum.upperBound,
+                })
+            }
+            hdi[key] = hdi_datum
+        }
+    }
+    return hdi
 }
 
 export default {render}

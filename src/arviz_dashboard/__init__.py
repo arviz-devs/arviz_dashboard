@@ -1,6 +1,7 @@
 """Dashboards for inspecting Bayesian models."""
 
-__version__ = "0.1.0"
 from arviz_dashboard.py import models
-from arviz_dashboard.py.traceplot import Traceplot
-from arviz_dashboard.py.forestplot import Forestplot
+from arviz_dashboard.py.traceplot import plot_trace
+from arviz_dashboard.py.forestplot import plot_forest
+
+__version__ = "0.1.0"
